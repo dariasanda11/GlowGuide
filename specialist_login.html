@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - GLOWGUIDE</title>
+  <title>Specialist Login - GLOWGUIDE</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
@@ -11,18 +11,18 @@
     <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
       
       <div class="text-center mb-8">
-        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-purple-600">
-            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+        <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-pink-600">
+            <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
           </svg>
         </div>
         <h2 class="text-3xl font-bold mb-2">
-          Client Login
+          Specialist Login
         </h2>
         <p class="text-gray-600">Welcome back to GLOWGUIDE</p>
       </div>
 
-      <form action="/client/dashboard" method="POST" class="space-y-6">
+      <form action="specialist/dashboard.html" method="GET" class="space-y-6">
         
         <div>
           <label class="block text-sm font-medium mb-2">Email</label>
@@ -34,8 +34,8 @@
             <input
               type="email"
               name="email"
-              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-shadow"
-              placeholder="your@email.com"
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:border-transparent outline-none transition-shadow"
+              placeholder="specialist@email.com"
               required
             />
           </div>
@@ -51,7 +51,7 @@
             <input
               type="password"
               name="password"
-              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-shadow"
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:border-transparent outline-none transition-shadow"
               placeholder="••••••••"
               required
             />
@@ -60,18 +60,16 @@
 
         <button
           type="submit"
-          class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium"
+          class="w-full bg-pink-600 text-white py-3 rounded-lg hover:bg-pink-700 transition-colors font-medium"
         >
-          Login
+          Login as Specialist
         </button>
       </form>
 
       <div class="mt-6 text-center">
         <p class="text-gray-600">
-          Don't have an account? 
-          <a href="/signup/client" class="text-purple-600 hover:underline font-medium">
-            Sign up
-          </a>
+          Not a specialist yet? 
+          <a href="specialist_signup.html" class="text-pink-600 hover:underline font-medium">Apply here</a>
         </p>
       </div>
 

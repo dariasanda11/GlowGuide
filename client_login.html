@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Client Sign Up - GLOWGUIDE</title>
+  <title>Login - GLOWGUIDE</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-  <div class="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-white flex items-center justify-center p-4">
+  <div class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-white flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
       
       <div class="text-center mb-8">
@@ -17,30 +17,13 @@
           </svg>
         </div>
         <h2 class="text-3xl font-bold mb-2">
-          Client Sign Up
+          Client Login
         </h2>
-        <p class="text-gray-600">Join GLOWGUIDE today</p>
+        <p class="text-gray-600">Welcome back to GLOWGUIDE</p>
       </div>
 
       <form action="client/dashboard.html" method="GET" class="space-y-6">
         
-        <div>
-          <label class="block text-sm font-medium mb-2">Full Name</label>
-          <div class="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
-              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
-              <circle cx="12" cy="7" r="4"/>
-            </svg>
-            <input
-              type="text"
-              name="name"
-              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-shadow"
-              placeholder="John Doe"
-              required
-            />
-          </div>
-        </div>
-
         <div>
           <label class="block text-sm font-medium mb-2">Email</label>
           <div class="relative">
@@ -79,15 +62,15 @@
           type="submit"
           class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium"
         >
-          Create Account
+          Login
         </button>
       </form>
 
       <div class="mt-6 text-center">
         <p class="text-gray-600">
-          Already have an account? 
-          <a href="client_login.html" class="text-purple-600 hover:underline font-medium">
-            Login
+          Don't have an account? 
+          <a href="client_signup.html" class="text-purple-600 hover:underline font-medium">
+            Sign up
           </a>
         </p>
       </div>
