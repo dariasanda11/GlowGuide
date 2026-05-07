@@ -9,7 +9,7 @@
 </head>
 <body class="bg-gray-50 font-sans text-gray-900">
 
-    <div id="upload-view" class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div id="upload-view" class="max-w-3xl mx-auto px-4 sm:px-6 lg:grid-cols-8 py-8">
         <div class="mb-8">
             <h1 class="text-3xl font-bold mb-2">Upload Skin Concern</h1>
             <p class="text-gray-600">Share photos and details about your skin concerns</p>
@@ -34,7 +34,7 @@
                 <label class="block text-sm font-medium mb-2">Upload Photos</label>
                 <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-purple-400 transition-colors relative">
                     <input type="file" id="image-upload" class="hidden" accept="image/*" multiple />
-                    <label htmlFor="image-upload" class="cursor-pointer block" onclick="document.getElementById('image-upload').click()">
+                    <label for="image-upload" class="cursor-pointer block">
                         <i data-lucide="upload" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
                         <p class="text-gray-600 mb-2">Click to upload photos</p>
                         <p class="text-sm text-gray-500">or drag and drop</p>
@@ -43,7 +43,7 @@
                 </div>
 
                 <div id="image-preview-grid" class="grid grid-cols-3 gap-4 mt-4 hidden">
-                    </div>
+                </div>
             </div>
 
             <div class="mb-6">
@@ -57,10 +57,13 @@
             </div>
 
             <div class="flex gap-4">
-                <button type="button" onclick="window.location.href='/client/dashboard'" class="flex-1 border-2 border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                <button type="button" 
+                        onclick="window.location.href='client_dashboard.html'" 
+                        class="flex-1 border-2 border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium">
                     Cancel
                 </button>
-                <button type="submit" class="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-md">
+                <button type="submit" 
+                        class="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-md">
                     Submit for Review
                 </button>
             </div>
@@ -79,6 +82,7 @@
     </div>
 
     <script>
+        // Inițializare iconițe
         lucide.createIcons();
 
         const fileInput = document.getElementById('image-upload');
@@ -87,6 +91,7 @@
         const uploadView = document.getElementById('upload-view');
         const successView = document.getElementById('success-view');
 
+        // Logică pentru previzualizarea imaginilor selectate
         fileInput.addEventListener('change', (e) => {
             const files = Array.from(e.target.files);
             if (files.length > 0) {
@@ -97,7 +102,7 @@
                         const div = document.createElement('div');
                         div.className = 'relative group';
                         div.innerHTML = `
-                            <img src="${event.target.result}" class="w-full h-32 object-cover rounded-lg">
+                            <img src="${event.target.result}" class="w-full h-32 object-cover rounded-lg shadow-sm">
                             <button type="button" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-90 hover:opacity-100" onclick="this.parentElement.remove()">
                                 <i data-lucide="x" class="w-4 h-4"></i>
                             </button>
@@ -110,13 +115,17 @@
             }
         });
 
+        // Logică pentru trimiterea formularului și redirecționare
         form.addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            // Simulăm trimiterea prin schimbarea vizualizării
             uploadView.classList.add('hidden');
             successView.classList.remove('hidden');
             
+            // Redirecționare către dashboard după 2 secunde
             setTimeout(() => {
-                window.location.href = '/client/dashboard';
+                window.location.href = 'client_dashboard.html';
             }, 2000);
         });
     </script>
