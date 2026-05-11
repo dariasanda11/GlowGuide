@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Consultations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold">My Consultations</h1>
+        <a href="/client/client_dashboard.html" class="text-purple-600 hover:underline font-medium">← Back to Dashboard</a>
+    </div>
+
+    <div id="consultations-container" class="space-y-4">
+        <p class="text-gray-500">Loading your consultations...</p>
+    </div>
+</div>
+
+<script>
+    async function loadMyConsultations() {
+
+        const myEmail = localStorage.getItem('loggedClientEmail');
+        const container = document.getElementById('consultations-container');
+
+        if (!myEmail) {
+            container.innerHTML = `<p class="text-red-500">Please log in to see your consultations.</p>`;
+            return;
+        }
+
+        try {
+
+            const response = await fetch(`/api/concerns/client/${myEmail}`);
+            const messages = await response.json();
+
+            if (messages.length === 0) {
+                container.innerHTML = `<p class="text-gray-500 bg-white p-6 rounded-xl shadow-sm">You haven't submitted any concerns yet.</p>`;
+                return;
+            }
+
+            container.innerHTML = messages.reverse().map(msg => {
+                const statusBadge = msg.replied
+                    ? `<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">Specialist Replied</span>`
+                    : `<span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-medium">Pending Review</span>`;
+
+                return `
+                    <a href="/client/client_chat.html?id=${msg.id}" class="block bg-white rounded-xl shadow-md p-6 border-2 border-transparent hover:border-purple-200 transition-all">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg">Subject: ${msg.subject}</h3>
+                            ${statusBadge}
+                        </div>
+                        <p class="text-gray-600 text-sm line-clamp-2">${msg.message}</p>
+                    </a>
+                `;
+            }).join('');
+
+        } catch (error) {
+            console.error("Error:", error);
+            container.innerHTML = `<p class="text-red-500">Failed to load consultations.</p>`;
+        }
+    }
+
+    loadMyConsultations();
+</script>
+</body>
+</html>

@@ -82,13 +82,13 @@
 
 <script>
     document.getElementById('clientLoginForm').addEventListener('submit', async function(event) {
-        event.preventDefault(); // Stop the page from refreshing
+        event.preventDefault();
 
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
         try {
-            // Call the unified login endpoint
+
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -96,18 +96,20 @@
             });
 
             if (response.ok) {
-                // Parse the JSON response from the server
-                const data = await response.json();
+                 const data = await response.json();
 
-                // Security check: Make sure a Specialist isn't trying to log into the Client portal
-                if (data.role === 'ROLE_CLIENT') {
-                    // Redirect to the client dashboard
-                   window.location.href = '/client/client_dashboard.html'; // Matches your folder and filename
+               if (data.role === 'ROLE_CLIENT') {
+
+               localStorage.setItem('loggedClientName', data.name);
+               localStorage.setItem('loggedClientEmail', data.email);
+
+
+        window.location.href = '/client/client_dashboard.html';
                 } else {
                     alert("Account found, but you are registered as a Specialist. Please use the Specialist login page.");
                 }
             } else {
-                // The server sent a bad request (e.g., wrong password)
+
                 const errorData = await response.json();
                 alert("Login Failed: " + errorData.error);
             }

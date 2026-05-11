@@ -18,7 +18,7 @@
     <form id="concern-form" class="bg-white rounded-2xl shadow-lg p-8">
         <div class="mb-6">
             <label class="block text-sm font-medium mb-2">Concern Type</label>
-            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none" required>
+            <select id="subject" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none" required>
                 <option value="">Select a concern</option>
                 <option value="acne">Acne</option>
                 <option value="dryness">Dry Skin</option>
@@ -49,6 +49,7 @@
         <div class="mb-6">
             <label class="block text-sm font-medium mb-2">Description</label>
             <textarea
+                    id="message"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none"
                     rows="6"
                     placeholder="Describe your skin concern in detail. When did it start? What have you tried?"
@@ -110,14 +111,47 @@
         }
     });
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        uploadView.classList.add('hidden');
-        successView.classList.remove('hidden');
 
-        setTimeout(() => {
-            window.location.href = '/client/client_dashboard.html';
-        }, 2000);
+        const subjectValue = document.getElementById('subject').value;
+        const messageValue = document.getElementById('message').value;
+
+        const realName = localStorage.getItem('loggedClientName') || "Unknown Client";
+        const realEmail = localStorage.getItem('loggedClientEmail') || "unknown@email.com";
+
+
+        const concernData = {
+        clientName: realName,
+        clientEmail: realEmail,
+        subject: subjectValue,
+        message: messageValue
+       };
+
+        try {
+            const response = await fetch('/api/concerns', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(concernData)
+            });
+
+            if (response.ok) {
+
+                uploadView.classList.add('hidden');
+                successView.classList.remove('hidden');
+
+                setTimeout(() => {
+                    window.location.href = '/client/client_dashboard.html';
+                }, 2000);
+            } else {
+                alert('Oops! The server received the request but something went wrong.');
+            }
+        } catch (error) {
+            console.error('Database Connection Error:', error);
+            alert('Failed to connect to the database. Is Spring Boot running?');
+        }
     });
 </script>
 </body>

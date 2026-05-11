@@ -27,14 +27,13 @@
 <script>
     const container = document.getElementById('messages-container');
 
-    // 1. FUNCȚIA DE RENTARE (Cum arată un mesaj în HTML)
     function createMessageHTML(msg) {
         const statusBadge = msg.replied
             ? `<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">Replied</span>`
             : `<span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-medium">Pending</span>`;
 
         return `
-            <a href="message_detail.html?id=${msg.id}" class="block bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all border border-transparent hover:border-pink-200">
+            <a href="/specialist/specialist_chat.html?id=${msg.id}" class="block bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all border border-transparent hover:border-pink-200">
                 <div class="flex flex-col md:flex-row md:items-start justify-between mb-4 gap-4">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
@@ -56,13 +55,17 @@
         `;
     }
 
-    // 2. FUNCȚIA DE FETCH (Aici vei face legătura cu baza de date)
+
     async function loadMessagesFromDB() {
         try {
-            // Aici vei înlocui cu codul tău de Firebase/Supabase/Fetch
-            // Exemplu: const { data: messages, error } = await supabase.from('messages').select('*');
 
-            const messages = []; // Momentan este gol, deci va afișa "No messages"
+            const response = await fetch('/api/concerns');
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch from server');
+            }
+
+            const messages = await response.json();
 
             if (messages.length === 0) {
                 container.innerHTML = `
@@ -72,16 +75,16 @@
                     </div>
                 `;
             } else {
-                container.innerHTML = messages.map(msg => createMessageHTML(msg)).join('');
+
+                container.innerHTML = messages.reverse().map(msg => createMessageHTML(msg)).join('');
             }
 
         } catch (error) {
-            console.error("Eroare la încărcarea datelor:", error);
-            container.innerHTML = `<p class="text-red-500 text-center">A apărut o eroare la încărcarea mesajelor.</p>`;
+            console.error("Database Error:", error);
+            container.innerHTML = `<p class="text-red-500 text-center font-bold">Error loading messages. Is your Spring Boot server running?</p>`;
         }
     }
 
-    // Pornim procesul de încărcare
     loadMessagesFromDB();
 </script>
 </body>

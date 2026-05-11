@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Client</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-2xl font-bold">Consultation Details</h1>
+        <a href="/specialist/specialist_messages.html" class="text-pink-600 hover:underline">← Back to Messages</a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+
+        <div class="mb-6">
+            <p class="text-sm text-gray-500 font-bold mb-1" id="client-name">Loading Client...</p>
+            <div class="bg-gray-100 rounded-lg p-4 inline-block w-3/4">
+                <p class="font-bold text-sm mb-2" id="concern-subject">Subject: ...</p>
+                <p id="client-message">Loading message...</p>
+            </div>
+        </div>
+
+        <div id="reply-bubble" class="hidden flex flex-col items-end">
+            <p class="text-sm text-pink-600 font-bold mb-1">You (Specialist)</p>
+            <div class="bg-pink-100 text-pink-900 rounded-lg p-4 inline-block w-3/4">
+                <p id="specialist-reply-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="reply-form-container" class="bg-white rounded-xl shadow-md p-6 border-t-4 border-pink-500">
+        <h3 class="font-bold mb-4">Write your recommendation</h3>
+        <textarea id="replyInput" rows="4" class="w-full border border-gray-300 rounded-lg p-3 mb-4 focus:ring-pink-500 focus:border-pink-500" placeholder="Type your advice here..."></textarea>
+        <button onclick="sendReply()" class="bg-pink-600 text-white px-6 py-2 rounded-lg hover:bg-pink-700 font-medium">Send Reply</button>
+    </div>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const concernId = urlParams.get('id');
+
+    async function loadChat() {
+        try {
+            const response = await fetch(`/api/concerns/${concernId}`);
+            const data = await response.json();
+
+            document.getElementById('client-name').innerText = `${data.clientName} (${data.clientEmail})`;
+            document.getElementById('concern-subject').innerText = `Subject: ${data.subject}`;
+            document.getElementById('client-message').innerText = data.message;
+
+            if (data.replied) {
+                document.getElementById('reply-bubble').classList.remove('hidden');
+                document.getElementById('specialist-reply-text').innerText = data.specialistReply;
+                document.getElementById('reply-form-container').classList.add('hidden'); // Hide input box
+            }
+        } catch (error) {
+            console.error("Error loading chat:", error);
+            alert("Could not load the message.");
+        }
+    }
+
+    async function sendReply() {
+        const replyText = document.getElementById('replyInput').value;
+        if (!replyText) {
+            alert("Please type a reply first!");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/concerns/${concernId}/reply`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reply: replyText })
+            });
+
+            if (response.ok) {
+                loadChat();
+            } else {
+                alert("Failed to send reply.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    if (concernId) {
+        loadChat();
+    } else {
+        alert("No message ID found!");
+    }
+</script>
+</body>
+</html>

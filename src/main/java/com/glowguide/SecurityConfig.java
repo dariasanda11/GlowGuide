@@ -23,7 +23,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/**",    // Allow authentication endpoints
+                                "/api/auth/**",
+                                "/api/concerns/**",// Allow authentication endpoints
                                 "/*.html",         // Allow root HTML files (index, login, signup)
                                 "/client/**",      // NEW: Allow everything in the client folder
                                 "/specialist/**",  // NEW: Allow everything in the specialist folder

@@ -100,19 +100,19 @@
 
 <script>
     document.getElementById('signupForm').addEventListener('submit', async function(event) {
-        event.preventDefault(); // Stop the page from refreshing
+        event.preventDefault();
 
-        // CHANGED: Added the name variable here
+
         const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
         try {
-            // Send the data to your Spring Boot API
+
             const response = await fetch('/api/auth/client/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                // CHANGED: Added name to the JSON body being sent to the server
+
                 body: JSON.stringify({ name: name, email: email, password: password })
             });
 

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultation Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-900 min-h-screen flex flex-col">
+
+<div class="max-w-4xl mx-auto px-4 py-8 w-full flex-1 flex flex-col">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold">Consultation Chat</h1>
+            <p class="text-sm text-gray-500" id="header-subject">Loading subject...</p>
+        </div>
+        <a href="/client/client_consultations.html" class="text-purple-600 hover:text-purple-700 font-medium flex items-center gap-2 bg-purple-50 px-4 py-2 rounded-lg transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            Back to Consultations
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-md flex flex-col flex-1 min-h-[500px] max-h-[700px] border border-gray-100 overflow-hidden">
+
+        <div id="chat-history" class="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50/50">
+        </div>
+
+        <div class="bg-white border-t border-gray-100 p-4 sm:p-6">
+            <form id="chat-form" class="flex gap-3">
+                <input
+                        type="text"
+                        id="chatInput"
+                        class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-5 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none transition-all"
+                        placeholder="Type your message to the specialist..."
+                        autocomplete="off"
+                >
+                <button
+                        type="submit"
+                        class="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 font-medium shadow-sm transition-colors flex items-center gap-2"
+                >
+                    <span>Send</span>
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Initialize icons
+    lucide.createIcons();
+
+    // Grab the ID from the URL (e.g., ?id=1)
+    const urlParams = new URLSearchParams(window.location.search);
+    const concernId = urlParams.get('id');
+    const chatHistoryDiv = document.getElementById('chat-history');
+    const chatForm = document.getElementById('chat-form');
+
+    // Helper function to draw the chat bubbles
+    function appendBubble(role, text, titleOverwrite = null) {
+        const isClient = role === 'CLIENT';
+
+        // Styling based on who is sending the message
+        const alignClass = isClient ? 'flex flex-col items-end' : 'flex flex-col items-start';
+        const titleClass = isClient ? 'text-purple-600' : 'text-green-600';
+        const titleText = titleOverwrite || (isClient ? 'You' : 'Skin Specialist');
+        const bubbleClass = isClient
+            ? 'bg-purple-600 text-white rounded-2xl rounded-tr-sm'
+            : 'bg-white text-gray-800 border border-gray-200 rounded-2xl rounded-tl-sm shadow-sm';
+
+        const bubbleHTML = `
+            <div class="${alignClass} animate-fade-in">
+                <p class="text-xs ${titleClass} font-bold mb-1 px-1">${titleText}</p>
+                <div class="${bubbleClass} p-4 max-w-[85%] sm:max-w-[70%]">
+                    <p class="text-sm md:text-base whitespace-pre-wrap">${text}</p>
+                </div>
+            </div>
+        `;
+        chatHistoryDiv.innerHTML += bubbleHTML;
+    }
+
+    async function loadChat() {
+        try {
+            // 1. Load the original concern
+            const concernRes = await fetch(`/api/concerns/${concernId}`);
+            if (!concernRes.ok) throw new Error("Concern not found");
+            const concernData = await concernRes.json();
+
+            // Update header
+            document.getElementById('header-subject').innerText = `Subject: ${concernData.subject}`;
+
+            // Draw the very first message the client sent
+            appendBubble("CLIENT", concernData.message, "You (Original Concern)");
+
+            // Draw the legacy specialistReply (if you had any from earlier testing)
+            if (concernData.replied && concernData.specialistReply) {
+                appendBubble("SPECIALIST", concernData.specialistReply);
+            }
+
+            // 2. Load the continuous chat history
+            const messagesRes = await fetch(`/api/concerns/${concernId}/messages`);
+            if (messagesRes.ok) {
+                const messages = await messagesRes.json();
+                messages.forEach(msg => {
+                    appendBubble(msg.senderRole, msg.text);
+                });
+            }
+
+            // Scroll to the absolute bottom of the chat
+            scrollToBottom();
+        } catch (error) {
+            console.error("Error loading chat:", error);
+            chatHistoryDiv.innerHTML = `<p class="text-center text-red-500 py-10">Failed to load chat history.</p>`;
+        }
+    }
+
+    // 3. Send a new message
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Prevent page reload
+
+        const input = document.getElementById('chatInput');
+        const text = input.value.trim();
+
+        if (!text) return; // Don't send empty messages
+
+        // Package the data for Spring Boot
+        const payload = {
+            senderRole: "CLIENT",
+            text: text
+        };
+
+        try {
+            const response = await fetch(`/api/concerns/${concernId}/messages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                // Immediately draw the bubble on the screen
+                appendBubble("CLIENT", text);
+                input.value = ''; // Clear the box
+                scrollToBottom(); // Auto-scroll down
+            } else {
+                alert("Failed to send message. Please try again.");
+            }
+        } catch (error) {
+            console.error("Failed to send message:", error);
+            alert("Connection error. Is the server running?");
+        }
+    });
+
+    function scrollToBottom() {
+        setTimeout(() => {
+            chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+        }, 50);
+    }
+
+    // Start loading when the page opens
+    if (concernId) {
+        loadChat();
+    } else {
+        chatHistoryDiv.innerHTML = `<p class="text-center text-red-500 py-10">No consultation ID found.</p>`;
+    }
+</script>
+
+<style>
+    /* Small animation to make messages pop in smoothly */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+</style>
+</body>
+</html>

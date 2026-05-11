@@ -95,9 +95,9 @@
             if (response.ok) {
                 const data = await response.json();
 
-                // Security check: Make sure a Client isn't trying to log into the Specialist portal
+
                 if (data.role === 'ROLE_SPECIALIST') {
-                    // Redirect to specialist dashboard
+
                     window.location.href = '/specialist/specialist_dashboard.html';
                 } else {
                     alert("Account found, but you are registered as a Client. Please use the Client login page.");

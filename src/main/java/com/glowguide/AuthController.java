@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -15,7 +18,6 @@ public class AuthController {
     @PostMapping("/client/register")
     public ResponseEntity<String> registerClient(@RequestBody RegisterDto request) {
         try {
-            // Pass the name, email, password, and hardcoded role to the service
             authService.registerUser(request.getName(), request.getEmail(), request.getPassword(), "ROLE_CLIENT");
             return ResponseEntity.ok("Client registration successful!");
         } catch (Exception e) {
@@ -27,7 +29,6 @@ public class AuthController {
     @PostMapping("/specialist/register")
     public ResponseEntity<String> registerSpecialist(@RequestBody RegisterDto request) {
         try {
-            // Pass the name, email, password, and hardcoded role to the service
             authService.registerUser(request.getName(), request.getEmail(), request.getPassword(), "ROLE_SPECIALIST");
             return ResponseEntity.ok("Specialist registration successful!");
         } catch (Exception e) {
@@ -35,22 +36,30 @@ public class AuthController {
         }
     }
 
-    // NEW: Connects to your login pages
+    // UPDATED: Now returns the name and email using a Map!
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto request) {
         try {
             User user = authService.loginUser(request.getEmail(), request.getPassword());
 
-            // Return JSON containing the role so your frontend Javascript
-            // knows whether to redirect to the Client or Specialist Dashboard
-            return ResponseEntity.ok().body("{\"message\": \"Login successful\", \"role\": \"" + user.getRole() + "\"}");
+            // Build a clean map instead of manually typing JSON brackets
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Login successful");
+            response.put("role", user.getRole());
+            response.put("name", user.getName());    // <-- ADDED THIS
+            response.put("email", user.getEmail());  // <-- ADDED THIS
+
+            // Spring Boot automatically converts this Map into a beautiful JSON object!
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
-            // Return a clean JSON error message if login fails
-            return ResponseEntity.badRequest().body("{\"error\": \"" + e.getMessage() + "\"}");
+            // Also updated the error handler to use a Map for consistency
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 
-    // CHANGED: Added 'name' to the RegisterDto
     public static class RegisterDto {
         private String name;
         private String email;
@@ -64,7 +73,6 @@ public class AuthController {
         public void setPassword(String password) { this.password = password; }
     }
 
-    // NEW: Created a DTO specifically for logging in (doesn't need 'name')
     public static class LoginDto {
         private String email;
         private String password;

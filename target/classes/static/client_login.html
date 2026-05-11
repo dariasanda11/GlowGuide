@@ -96,13 +96,15 @@
             });
 
             if (response.ok) {
-                // Parse the JSON response from the server
-                const data = await response.json();
+                 const data = await response.json();
 
-                // Security check: Make sure a Specialist isn't trying to log into the Client portal
-                if (data.role === 'ROLE_CLIENT') {
-                    // Redirect to the client dashboard
-                   window.location.href = '/client/client_dashboard.html'; // Matches your folder and filename
+               if (data.role === 'ROLE_CLIENT') {
+
+               localStorage.setItem('loggedClientName', data.name);
+               localStorage.setItem('loggedClientEmail', data.email);
+
+        // Redirect to the client dashboard
+        window.location.href = '/client/client_dashboard.html';
                 } else {
                     alert("Account found, but you are registered as a Specialist. Please use the Specialist login page.");
                 }
