@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Specialist Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">Specialist Dashboard</h1>
+            <p class="text-gray-600">Manage client consultations and provide expert advice</p>
+        </div>
+
+        <div class="grid md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <div class="flex items-center justify-between mb-2">
+                    <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    <span id="stat-total" class="text-3xl font-bold">0</span>
+                </div>
+                <p class="text-gray-600">Total Messages</p>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <div class="flex items-center justify-between mb-2">
+                    <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span id="stat-pending" class="text-3xl font-bold">0</span>
+                </div>
+                <p class="text-gray-600">Pending Replies</p>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <div class="flex items-center justify-between mb-2">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span id="stat-completed" class="text-3xl font-bold">0</span>
+                </div>
+                <p class="text-gray-600">Completed</p>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <div class="flex items-center justify-between mb-2">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <span id="stat-clients" class="text-3xl font-bold">0</span>
+                </div>
+                <p class="text-gray-600">Active Clients</p>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-pink-600 to-purple-600 rounded-2xl p-8 text-white mb-8">
+            <h2 class="text-2xl font-bold mb-4">Your Impact</h2>
+            <p class="mb-6">
+                You're helping clients achieve healthier, more radiant skin through your expert guidance and personalized recommendations.
+            </p>
+            <a href="messages.html" class="inline-block bg-white text-pink-600 px-6 py-3 rounded-lg hover:bg-pink-50 transition-colors font-medium">
+                View Pending Messages
+            </a>
+        </div>
+
+        <div class="bg-white rounded-2xl p-8 shadow-md">
+            <h2 class="text-2xl font-bold mb-6">Recent Consultations</h2>
+            <div id="messages-list" class="space-y-4">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock Data integrat
+        const mockMessages = [
+            {
+                id: '1',
+                clientName: 'Maria Ionescu',
+                subject: 'Severe Acne Flare-up',
+                message: 'I have been experiencing a lot of redness and breakouts around my jawline for the past two weeks...',
+                date: '2024-05-20',
+                replied: false
+            },
+            {
+                id: '2',
+                clientName: 'Andrei Popescu',
+                subject: 'Dry Skin Routine',
+                message: 'Looking for a better moisturizer for the winter season. My current one feels too light.',
+                date: '2024-05-18',
+                replied: true
+            },
+            {
+                id: '3',
+                clientName: 'Elena Radu',
+                subject: 'Hyperpigmentation',
+                message: 'I have some dark spots from old acne scars. What serum would you recommend?',
+                date: '2024-05-15',
+                replied: true
+            },
+            {
+                id: '4',
+                clientName: 'George Matei',
+                subject: 'Sunscreen Sensitivity',
+                message: 'Every sunscreen I try makes my eyes sting. Any mineral recommendations?',
+                date: '2024-05-10',
+                replied: false
+            }
+        ];
+
+        // Inițializare statistici
+        function updateStats() {
+            const total = mockMessages.length;
+            const unreplied = mockMessages.filter(m => !m.replied).length;
+            const replied = total - unreplied;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-pending').innerText = unreplied;
+            document.getElementById('stat-completed').innerText = replied;
+            document.getElementById('stat-clients').innerText = total; // Exemplu simplificat
+        }
+
+        // Randare mesaje recente
+        function renderMessages() {
+            const container = document.getElementById('messages-list');
+            // Luăm primele 3 mesaje (ca în slice(0, 3))
+            const recent = mockMessages.slice(0, 3);
+
+            container.innerHTML = recent.map(msg => `
+                <a href="message-detail.html?id=${msg.id}" class="block p-4 border border-gray-200 rounded-lg hover:border-pink-300 hover:bg-pink-50 transition-all">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="font-bold">${msg.clientName}</p>
+                                <p class="text-sm text-gray-600">${msg.subject}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 mt-2 sm:mt-0">
+                            <span class="text-sm text-gray-500">${msg.date}</span>
+                            ${msg.replied 
+                                ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">Replied</span>' 
+                                : '<span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-medium">Pending</span>'
+                            }
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 line-clamp-2">${msg.message}</p>
+                </a>
+            `).join('');
+        }
+
+        // Executare
+        updateStats();
+        renderMessages();
+    </script>
+</body>
+</html>
