@@ -58,18 +58,15 @@
 
     async function loadMessagesFromDB() {
         try {
-            // 1. Call your Spring Boot API
+
             const response = await fetch('/api/concerns');
 
-            // 2. Check if the server answered successfully
             if (!response.ok) {
                 throw new Error('Failed to fetch from server');
             }
 
-            // 3. Convert the response into an array of JavaScript objects
             const messages = await response.json();
 
-            // 4. Display them on the screen!
             if (messages.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-20 bg-white rounded-xl shadow-sm border border-dashed border-gray-300">
@@ -78,7 +75,7 @@
                     </div>
                 `;
             } else {
-                // We use .reverse() so the newest messages show up at the top!
+
                 container.innerHTML = messages.reverse().map(msg => createMessageHTML(msg)).join('');
             }
 
@@ -88,7 +85,6 @@
         }
     }
 
-    // Start the loading process when the page opens
     loadMessagesFromDB();
 </script>
 </body>

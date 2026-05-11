@@ -82,13 +82,13 @@
 
 <script>
     document.getElementById('clientLoginForm').addEventListener('submit', async function(event) {
-        event.preventDefault(); // Stop the page from refreshing
+        event.preventDefault();
 
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
         try {
-            // Call the unified login endpoint
+
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -103,13 +103,13 @@
                localStorage.setItem('loggedClientName', data.name);
                localStorage.setItem('loggedClientEmail', data.email);
 
-        // Redirect to the client dashboard
+
         window.location.href = '/client/client_dashboard.html';
                 } else {
                     alert("Account found, but you are registered as a Specialist. Please use the Specialist login page.");
                 }
             } else {
-                // The server sent a bad request (e.g., wrong password)
+
                 const errorData = await response.json();
                 alert("Login Failed: " + errorData.error);
             }

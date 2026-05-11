@@ -88,7 +88,13 @@
     const uploadView = document.getElementById('upload-view');
     const successView = document.getElementById('success-view');
 
-    // Handles showing the preview images visually
+    const getBase64 = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+
     fileInput.addEventListener('change', (e) => {
         const files = Array.from(e.target.files);
         if (files.length > 0) {
@@ -112,27 +118,25 @@
         }
     });
 
-    // UPDATED: Sends data to the Database
     form.addEventListener('submit', async (e) => {
         e.preventDefault(); // Stop page from refreshing
 
-        // 1. Grab the values from the dropdown and the text box
         const subjectValue = document.getElementById('subject').value;
         const messageValue = document.getElementById('message').value;
-
         const realName = localStorage.getItem('loggedClientName') || "Unknown Client";
         const realEmail = localStorage.getItem('loggedClientEmail') || "unknown@email.com";
 
-        // 2. Package it exactly like our Concern.java file expects
+        const base64Images = await Promise.all(Array.from(fileInput.files).map(getBase64));
+
         const concernData = {
-        clientName: realName,
-        clientEmail: realEmail,
-        subject: subjectValue,
-        message: messageValue
-       };
+            clientName: realName,
+            clientEmail: realEmail,
+            subject: subjectValue,
+            message: messageValue,
+            images: base64Images
+        };
 
         try {
-            // 3. Send the POST request to Spring Boot
             const response = await fetch('/api/concerns', {
                 method: 'POST',
                 headers: {
@@ -142,11 +146,10 @@
             });
 
             if (response.ok) {
-                // 4. If successful, hide the form and show your awesome green checkmark
+
                 uploadView.classList.add('hidden');
                 successView.classList.remove('hidden');
 
-                // 5. Wait 2 seconds, then redirect to dashboard
                 setTimeout(() => {
                     window.location.href = '/client/client_dashboard.html';
                 }, 2000);

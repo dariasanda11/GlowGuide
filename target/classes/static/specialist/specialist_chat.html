@@ -40,22 +40,35 @@
 </div>
 
 <script>
-    // 1. Get the ID of the concern from the web address (e.g., ?id=1)
     const urlParams = new URLSearchParams(window.location.search);
     const concernId = urlParams.get('id');
 
-    // 2. Load the chat data when the page opens
     async function loadChat() {
         try {
             const response = await fetch(`/api/concerns/${concernId}`);
             const data = await response.json();
 
-            // Fill in the client's info
             document.getElementById('client-name').innerText = `${data.clientName} (${data.clientEmail})`;
             document.getElementById('concern-subject').innerText = `Subject: ${data.subject}`;
             document.getElementById('client-message').innerText = data.message;
+            if (data.images && data.images.length > 0) {
+                let imageGrid = '<div class="flex gap-3 mt-4 flex-wrap border-t border-gray-200 pt-4">';
 
-            // If the specialist already replied, show the reply bubble and hide the text box
+                data.images.forEach(imgBase64 => {
+                    imageGrid += `
+                        <img src="${imgBase64}"
+                             class="w-24 h-24 object-cover rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:opacity-80 hover:scale-105 transition-all"
+                             onclick="window.open('${imgBase64}')"
+                             alt="Client Skin Photo">
+                    `;
+                });
+
+                imageGrid += '</div>';
+
+
+                document.getElementById('client-message').insertAdjacentHTML('afterend', imageGrid);
+            }
+
             if (data.replied) {
                 document.getElementById('reply-bubble').classList.remove('hidden');
                 document.getElementById('specialist-reply-text').innerText = data.specialistReply;
@@ -67,7 +80,6 @@
         }
     }
 
-    // 3. Send the reply to the database
     async function sendReply() {
         const replyText = document.getElementById('replyInput').value;
         if (!replyText) {
@@ -83,7 +95,6 @@
             });
 
             if (response.ok) {
-                // Reload the chat to show the new bubble!
                 loadChat();
             } else {
                 alert("Failed to send reply.");
@@ -93,7 +104,6 @@
         }
     }
 
-    // Start loading
     if (concernId) {
         loadChat();
     } else {

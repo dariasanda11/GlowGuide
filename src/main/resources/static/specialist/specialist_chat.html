@@ -51,6 +51,23 @@
             document.getElementById('client-name').innerText = `${data.clientName} (${data.clientEmail})`;
             document.getElementById('concern-subject').innerText = `Subject: ${data.subject}`;
             document.getElementById('client-message').innerText = data.message;
+            if (data.images && data.images.length > 0) {
+                let imageGrid = '<div class="flex gap-3 mt-4 flex-wrap border-t border-gray-200 pt-4">';
+
+                data.images.forEach(imgBase64 => {
+                    imageGrid += `
+                        <img src="${imgBase64}"
+                             class="w-24 h-24 object-cover rounded-lg border border-gray-300 shadow-sm cursor-pointer hover:opacity-80 hover:scale-105 transition-all"
+                             onclick="window.open('${imgBase64}')"
+                             alt="Client Skin Photo">
+                    `;
+                });
+
+                imageGrid += '</div>';
+
+
+                document.getElementById('client-message').insertAdjacentHTML('afterend', imageGrid);
+            }
 
             if (data.replied) {
                 document.getElementById('reply-bubble').classList.remove('hidden');

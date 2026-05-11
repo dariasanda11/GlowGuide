@@ -24,7 +24,6 @@
 </div>
 
 <script>
-    // Date de test (Mock Data)
     const mockProducts = [
         {
             id: '1',
@@ -52,14 +51,12 @@
         }
     ];
 
-    // Starea aplicației (State)
     let cartItems = [];
-    let addedFeedbackSet = new Set(); // Pentru efectul vizual de "Added"
+    let addedFeedbackSet = new Set();
 
     const productsGrid = document.getElementById('products-grid');
     const cartCountDisplay = document.getElementById('cart-count');
 
-    // Funcția de randare a produselor
     function renderProducts() {
         productsGrid.innerHTML = '';
 
@@ -67,7 +64,6 @@
             const isRecentlyAdded = addedFeedbackSet.has(product.id);
             const alreadyInCart = cartItems.some(item => item.id === product.id);
 
-            // Determinăm stilul butonului în funcție de stare
             let buttonClass = "";
             let buttonContent = "";
 
@@ -106,15 +102,12 @@
         });
     }
 
-    // Logica pentru Adăugare în Coș
     window.handleAddToCart = (productId) => {
         const product = mockProducts.find(p => p.id === productId);
 
-        // Adăugăm în coș
         cartItems.push(product);
         cartCountDisplay.innerText = cartItems.length;
 
-        // Feedback vizual (SetTimeout)
         addedFeedbackSet.add(productId);
         renderProducts();
 
@@ -124,7 +117,6 @@
         }, 2000);
     };
 
-    // Randare inițială
     renderProducts();
 </script>
 </body>

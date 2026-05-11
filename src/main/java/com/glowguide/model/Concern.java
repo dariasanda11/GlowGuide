@@ -2,6 +2,7 @@ package com.glowguide.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "concerns")
@@ -20,6 +21,10 @@ public class Concern {
 
     @Column(columnDefinition = "TEXT")
     private String specialistReply;
+
+    @ElementCollection
+    @Column(columnDefinition = "TEXT")
+    private List<String> images;
 
     private boolean replied = false;
     private LocalDate date = LocalDate.now();
@@ -50,4 +55,7 @@ public class Concern {
 
     public String getSpecialistReply() { return specialistReply; }
     public void setSpecialistReply(String specialistReply) { this.specialistReply = specialistReply; }
+
+    public List<String> getImages() { return images; }
+    public void setImages(List<String> images) { this.images = images; }
 }

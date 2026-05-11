@@ -49,20 +49,16 @@
 </div>
 
 <script>
-    // Initialize icons
     lucide.createIcons();
 
-    // Grab the ID from the URL (e.g., ?id=1)
     const urlParams = new URLSearchParams(window.location.search);
     const concernId = urlParams.get('id');
     const chatHistoryDiv = document.getElementById('chat-history');
     const chatForm = document.getElementById('chat-form');
 
-    // Helper function to draw the chat bubbles
     function appendBubble(role, text, titleOverwrite = null) {
         const isClient = role === 'CLIENT';
 
-        // Styling based on who is sending the message
         const alignClass = isClient ? 'flex flex-col items-end' : 'flex flex-col items-start';
         const titleClass = isClient ? 'text-purple-600' : 'text-green-600';
         const titleText = titleOverwrite || (isClient ? 'You' : 'Skin Specialist');
@@ -83,23 +79,18 @@
 
     async function loadChat() {
         try {
-            // 1. Load the original concern
             const concernRes = await fetch(`/api/concerns/${concernId}`);
             if (!concernRes.ok) throw new Error("Concern not found");
             const concernData = await concernRes.json();
 
-            // Update header
             document.getElementById('header-subject').innerText = `Subject: ${concernData.subject}`;
 
-            // Draw the very first message the client sent
             appendBubble("CLIENT", concernData.message, "You (Original Concern)");
 
-            // Draw the legacy specialistReply (if you had any from earlier testing)
             if (concernData.replied && concernData.specialistReply) {
                 appendBubble("SPECIALIST", concernData.specialistReply);
             }
 
-            // 2. Load the continuous chat history
             const messagesRes = await fetch(`/api/concerns/${concernId}/messages`);
             if (messagesRes.ok) {
                 const messages = await messagesRes.json();
@@ -108,7 +99,6 @@
                 });
             }
 
-            // Scroll to the absolute bottom of the chat
             scrollToBottom();
         } catch (error) {
             console.error("Error loading chat:", error);
@@ -116,16 +106,15 @@
         }
     }
 
-    // 3. Send a new message
+
     chatForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); // Prevent page reload
+        e.preventDefault();
 
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
 
-        if (!text) return; // Don't send empty messages
+        if (!text) return;
 
-        // Package the data for Spring Boot
         const payload = {
             senderRole: "CLIENT",
             text: text
@@ -139,7 +128,7 @@
             });
 
             if (response.ok) {
-                // Immediately draw the bubble on the screen
+
                 appendBubble("CLIENT", text);
                 input.value = ''; // Clear the box
                 scrollToBottom(); // Auto-scroll down
@@ -158,7 +147,6 @@
         }, 50);
     }
 
-    // Start loading when the page opens
     if (concernId) {
         loadChat();
     } else {
@@ -167,7 +155,6 @@
 </script>
 
 <style>
-    /* Small animation to make messages pop in smoothly */
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }

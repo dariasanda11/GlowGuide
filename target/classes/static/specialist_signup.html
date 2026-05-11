@@ -124,7 +124,7 @@
 </div>
 
 <script>
-    // Existing file upload listener (for visual UI only right now)
+
     const fileInput = document.getElementById('cert-upload');
     const fileNameDisplay = document.getElementById('file-name-display');
 
@@ -138,11 +138,10 @@
       });
     }
 
-    // API Connection Logic
     document.getElementById('specialistSignupForm').addEventListener('submit', async function(event) {
-        event.preventDefault(); // Stop page refresh
+        event.preventDefault();
 
-        // CHANGED: Grab the name from the form
+
         const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
@@ -151,7 +150,7 @@
             const response = await fetch('/api/auth/specialist/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                // CHANGED: Added name to the JSON body
+
                 body: JSON.stringify({ name: name, email: email, password: password })
             });
 

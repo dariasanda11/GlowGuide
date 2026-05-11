@@ -88,6 +88,13 @@
     const uploadView = document.getElementById('upload-view');
     const successView = document.getElementById('success-view');
 
+    const getBase64 = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+
     fileInput.addEventListener('change', (e) => {
         const files = Array.from(e.target.files);
         if (files.length > 0) {
@@ -112,21 +119,22 @@
     });
 
     form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Stop page from refreshing
 
         const subjectValue = document.getElementById('subject').value;
         const messageValue = document.getElementById('message').value;
-
         const realName = localStorage.getItem('loggedClientName') || "Unknown Client";
         const realEmail = localStorage.getItem('loggedClientEmail') || "unknown@email.com";
 
+        const base64Images = await Promise.all(Array.from(fileInput.files).map(getBase64));
 
         const concernData = {
-        clientName: realName,
-        clientEmail: realEmail,
-        subject: subjectValue,
-        message: messageValue
-       };
+            clientName: realName,
+            clientEmail: realEmail,
+            subject: subjectValue,
+            message: messageValue,
+            images: base64Images
+        };
 
         try {
             const response = await fetch('/api/concerns', {
