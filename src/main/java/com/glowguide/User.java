@@ -10,7 +10,6 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // NEW: Add the name field
     @Column(nullable = false)
     private String name;
 
@@ -23,11 +22,9 @@ public class User {
     @Column(nullable = false)
     private String role;
 
-    // --- Getters and Setters ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    // NEW: Getter and Setter for Name
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 

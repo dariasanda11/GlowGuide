@@ -13,14 +13,13 @@ public class AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // CHANGED: Added 'String name' to the parameters
     public void registerUser(String name, String email, String rawPassword, String role) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new RuntimeException("Email is already registered.");
         }
 
         User user = new User();
-        user.setName(name); // NEW: Save the name to the user object
+        user.setName(name);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(rawPassword));
         user.setRole(role);
@@ -28,7 +27,6 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    // Your loginUser method stays exactly the same!
     public User loginUser(String email, String rawPassword) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Invalid email or password."));

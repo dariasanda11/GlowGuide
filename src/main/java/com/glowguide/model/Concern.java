@@ -29,8 +29,7 @@ public class Concern {
     private boolean replied = false;
     private LocalDate date = LocalDate.now();
 
-    // --- GETTERS AND SETTERS ---
-    // (You can generate these in IntelliJ by Right-Clicking -> Generate -> Getter and Setter)
+
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

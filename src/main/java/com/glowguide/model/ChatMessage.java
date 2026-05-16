@@ -10,8 +10,8 @@ public class ChatMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long concernId; // Links this message to the specific consultation
-    private String senderRole; // Will be either "CLIENT" or "SPECIALIST"
+    private Long concernId;
+    private String senderRole;
 
     @Column(columnDefinition = "TEXT")
     private String text;

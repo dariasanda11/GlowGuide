@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-900 min-h-screen">
+
+<div id="cart-app" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
+</div>
+
+<script>
+    const container = document.getElementById('cart-app');
+    const myEmail = localStorage.getItem('loggedClientEmail');
+    let cartItems = []; // Start empty, we will load this from the DB!
+
+    async function loadCartFromDB() {
+        if (!myEmail) {
+            container.innerHTML = `<p class="text-center text-red-500 py-10 font-bold">Please log in to view your cart.</p>`;
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/cart/${myEmail}`);
+            if (response.ok) {
+                cartItems = await response.json();
+                renderCart(); // Draw the screen once we have the data
+            }
+        } catch (error) {
+            console.error("Error loading cart:", error);
+            container.innerHTML = `<p class="text-center text-red-500 py-10">Failed to connect to the database.</p>`;
+        }
+    }
+
+    function renderCart() {
+        if (cartItems.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-16">
+                    <i data-lucide="shopping-bag" class="w-20 h-20 text-gray-300 mx-auto mb-4"></i>
+                    <h2 class="text-2xl font-bold mb-2">Your cart is empty</h2>
+                    <p class="text-gray-600 mb-6">Browse our recommended products and add items to your cart</p>
+                    <a href="/client/client_recommendations.html" class="inline-block bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm">
+                        Browse Products
+                    </a>
+                </div>
+            `;
+            lucide.createIcons();
+            return;
+        }
+
+        let subtotal = 0;
+        let itemsHtml = '';
+
+        cartItems.forEach(item => {
+            subtotal += item.price * item.quantity;
+            itemsHtml += `
+                <div class="bg-white rounded-xl shadow-md p-6 flex flex-col sm:flex-row gap-6 transition-all hover:shadow-lg border border-transparent hover:border-purple-100">
+                    <img src="${item.image}" alt="${item.name}" class="w-full sm:w-32 h-32 object-cover rounded-lg border border-gray-100">
+                    <div class="flex-1 flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <div class="text-sm text-purple-600 font-medium">${item.brand}</div>
+                                <h3 class="font-bold text-lg leading-tight">${item.name}</h3>
+                            </div>
+                            <button onclick="removeItem(${item.id})" class="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors ml-4">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <div class="flex items-center gap-3">
+                                <button onclick="updateQuantity(${item.id}, -1)" class="w-8 h-8 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
+                                    <i data-lucide="minus" class="w-4 h-4 text-gray-600"></i>
+                                </button>
+                                <span class="w-8 text-center font-medium">${item.quantity}</span>
+                                <button onclick="updateQuantity(${item.id}, 1)" class="w-8 h-8 border border-gray-300 rounded-lg flex items-center justify-center hover:bg-gray-50 transition-colors">
+                                    <i data-lucide="plus" class="w-4 h-4 text-gray-600"></i>
+                                </button>
+                            </div>
+                            <span class="text-xl font-bold">$${(item.price * item.quantity).toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        const tax = subtotal * 0.08;
+        const total = subtotal + tax;
+
+        container.innerHTML = `
+            <h1 class="text-3xl font-bold mb-8">Shopping Cart</h1>
+            <div class="grid lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-4">
+                    ${itemsHtml}
+                </div>
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-md p-6 sticky top-4 border border-gray-100">
+                        <h2 class="text-xl font-bold mb-4">Order Summary</h2>
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Subtotal</span>
+                                <span class="font-medium">$${subtotal.toFixed(2)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Shipping</span>
+                                <span class="text-green-600 font-medium">Free</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Tax (8%)</span>
+                                <span class="font-medium">$${tax.toFixed(2)}</span>
+                            </div>
+                            <div class="border-t border-gray-200 pt-4 flex justify-between mt-4">
+                                <span class="font-bold text-lg">Total</span>
+                                <span class="font-bold text-2xl text-purple-700">$${total.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <button onclick="window.location.href='/client/client_checkout.html'" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium mb-4 flex justify-center items-center gap-2 shadow-sm">
+                            Proceed to Checkout
+                        </button>
+                        <a href="/client/client_recommendations.html" class="block text-center text-purple-600 hover:text-purple-800 hover:underline font-medium transition-colors">
+                            Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+        lucide.createIcons();
+    }
+
+    window.updateQuantity = async function(id, change) {
+        const item = cartItems.find(i => i.id === id);
+        if (!item) return;
+
+        const newQuantity = item.quantity + change;
+
+        if (newQuantity <= 0) {
+            removeItem(id);
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/cart/update/${id}?quantity=${newQuantity}`, {
+                method: 'PUT'
+            });
+            if (response.ok) {
+                item.quantity = newQuantity; // Update local data
+                renderCart(); // Redraw screen
+            }
+        } catch (error) {
+            console.error("Failed to update quantity");
+        }
+    };
+
+    window.removeItem = async function(id) {
+        try {
+            const response = await fetch(`/api/cart/${id}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                cartItems = cartItems.filter(i => i.id !== id); // Remove from local array
+                renderCart(); // Redraw screen
+            }
+        } catch (error) {
+            console.error("Failed to delete item");
+        }
+    };
+
+    loadCartFromDB();
+</script>
+</body>
+</html>

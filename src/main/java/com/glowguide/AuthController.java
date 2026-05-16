@@ -14,7 +14,6 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    // Connects to your client_signup.html
     @PostMapping("/client/register")
     public ResponseEntity<String> registerClient(@RequestBody RegisterDto request) {
         try {
@@ -25,7 +24,6 @@ public class AuthController {
         }
     }
 
-    // Connects to your specialist_signup.html
     @PostMapping("/specialist/register")
     public ResponseEntity<String> registerSpecialist(@RequestBody RegisterDto request) {
         try {
@@ -36,24 +34,21 @@ public class AuthController {
         }
     }
 
-    // UPDATED: Now returns the name and email using a Map!
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto request) {
         try {
             User user = authService.loginUser(request.getEmail(), request.getPassword());
 
-            // Build a clean map instead of manually typing JSON brackets
             Map<String, String> response = new HashMap<>();
             response.put("message", "Login successful");
             response.put("role", user.getRole());
-            response.put("name", user.getName());    // <-- ADDED THIS
-            response.put("email", user.getEmail());  // <-- ADDED THIS
+            response.put("name", user.getName());
+            response.put("email", user.getEmail());
 
-            // Spring Boot automatically converts this Map into a beautiful JSON object!
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            // Also updated the error handler to use a Map for consistency
+
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(errorResponse);

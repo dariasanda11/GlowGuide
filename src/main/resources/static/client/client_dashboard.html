@@ -10,9 +10,16 @@
 <body class="bg-gray-50">
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold mb-2">Welcome Back!</h1>
-        <p class="text-gray-600">Your personalized skincare dashboard</p>
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-bold mb-2">Welcome Back!</h1>
+            <p class="text-gray-600">Your personalized skincare dashboard</p>
+        </div>
+
+        <button onclick="logout()" class="border-2 border-gray-200 text-gray-600 px-6 py-2 rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all font-medium flex items-center gap-2 w-fit">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            Log Out
+        </button>
     </div>
 
     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -99,6 +106,11 @@
 
 <script>
     lucide.createIcons();
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = '/index.html';
+    }
 </script>
 </body>
 </html>

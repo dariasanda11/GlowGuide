@@ -23,13 +23,18 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/",
+                                "/index.html",
                                 "/api/auth/**",
-                                "/api/concerns/**",// Allow authentication endpoints
-                                "/*.html",         // Allow root HTML files (index, login, signup)
-                                "/client/**",      // NEW: Allow everything in the client folder
-                                "/specialist/**",  // NEW: Allow everything in the specialist folder
-                                "/**/*.css",       // Allow all CSS
-                                "/**/*.js"         // Allow all JS
+                                "/api/orders/**",
+                                "/api/concerns/**",
+                                "/api/cart/**",
+                                "/api/products/**",
+                                "/*.html",
+                                "/client/**",
+                                "/specialist/**",
+                                "/**/*.css",
+                                "/**/*.js"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );

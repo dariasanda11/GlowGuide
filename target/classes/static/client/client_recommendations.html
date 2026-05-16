@@ -8,61 +8,81 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="mb-8 flex justify-between items-center">
-        <div>
-            <h1 class="text-3xl font-bold mb-2">Recommended Products</h1>
-            <p class="text-gray-600">Products curated for your skin type and concerns</p>
-        </div>
-        <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-            <span class="text-purple-600 font-bold">Cart: <span id="cart-count">0</span> items</span>
-        </div>
+<div class="mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+    <div>
+        <h1 class="text-3xl font-bold mb-2">Recommended Products</h1>
+        <p class="text-gray-600">Products curated for your skin type and concerns</p>
     </div>
+
+    <div class="flex items-center gap-4">
+        <a href="/client/client_dashboard.html" class="text-purple-600 hover:text-purple-700 font-medium flex items-center gap-2 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to Dashboard
+        </a>
+
+        <a href="/client/client_cart.html" class="block bg-white p-3 rounded-lg shadow-sm border border-gray-200 hover:border-purple-300 hover:shadow-md hover:bg-purple-50 transition-all cursor-pointer">
+            <span class="text-purple-600 font-bold">Cart: <span id="cart-count">0</span> items</span>
+        </a>
+    </div>
+</div>
 
     <div id="products-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
     </div>
 </div>
 
 <script>
-    const mockProducts = [
-        {
-            id: '1',
-            brand: 'Glow Essentials',
-            name: 'Vitamin C Serum',
-            description: 'Brightens and evens skin tone with potent antioxidants.',
-            price: 29.99,
-            image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=400'
-        },
-        {
-            id: '2',
-            brand: 'HydraPure',
-            name: 'Hyaluronic Acid Gel',
-            description: 'Deep hydration for a plump, healthy-looking complexion.',
-            price: 24.50,
-            image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=400'
-        },
-        {
-            id: '3',
-            brand: 'PureCare',
-            name: 'Gentle Foaming Cleanser',
-            description: 'Removes impurities without stripping natural oils.',
-            price: 18.00,
-            image: 'https://images.unsplash.com/photo-1556228578-8fd7c1264a8a?auto=format&fit=crop&q=80&w=400'
-        }
-    ];
 
+    const myEmail = localStorage.getItem('loggedClientEmail');
+
+    let allProducts = [];
     let cartItems = [];
     let addedFeedbackSet = new Set();
 
     const productsGrid = document.getElementById('products-grid');
     const cartCountDisplay = document.getElementById('cart-count');
 
+    async function loadData() {
+        try {
+
+            const productRes = await fetch('/api/products');
+            if (productRes.ok) {
+                allProducts = await productRes.json();
+            }
+
+            if (myEmail) {
+                const cartRes = await fetch(`/api/cart/${myEmail}`);
+                if (cartRes.ok) {
+                    cartItems = await cartRes.json();
+
+
+                    let totalCount = 0;
+                    cartItems.forEach(item => totalCount += item.quantity);
+                    cartCountDisplay.innerText = totalCount;
+                }
+            }
+
+
+            renderProducts();
+
+        } catch (error) {
+            console.error("Error connecting to database:", error);
+            productsGrid.innerHTML = `<p class="text-red-500 col-span-full text-center">Failed to load products from database. Is Spring Boot running?</p>`;
+        }
+    }
+
+
     function renderProducts() {
         productsGrid.innerHTML = '';
 
-        mockProducts.forEach(product => {
+        if (allProducts.length === 0) {
+            productsGrid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-10">No products available yet. Check back soon!</p>`;
+            return;
+        }
+
+        allProducts.forEach(product => {
             const isRecentlyAdded = addedFeedbackSet.has(product.id);
-            const alreadyInCart = cartItems.some(item => item.id === product.id);
+
+            const alreadyInCart = cartItems.some(item => item.name === product.name);
 
             let buttonClass = "";
             let buttonContent = "";
@@ -79,16 +99,16 @@
             }
 
             const productCard = `
-                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow overflow-hidden">
-                    <img src="${product.image}" alt="${product.name}" class="w-full h-64 object-cover">
-                    <div class="p-6">
+                <div class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow overflow-hidden flex flex-col">
+                    <img src="${product.imageUrl}" alt="${product.name}" class="w-full h-64 object-cover">
+                    <div class="p-6 flex flex-col flex-1">
                         <div class="text-sm text-purple-600 font-medium mb-1">${product.brand}</div>
                         <h3 class="font-bold text-lg mb-2">${product.name}</h3>
-                        <p class="text-gray-600 text-sm mb-4">${product.description}</p>
-                        <div class="flex items-center justify-between">
+                        <p class="text-gray-600 text-sm mb-4 flex-1">${product.description}</p>
+                        <div class="flex items-center justify-between mt-auto">
                             <span class="text-2xl font-bold">$${product.price.toFixed(2)}</span>
                             <button
-                                onclick="handleAddToCart('${product.id}')"
+                                onclick="handleAddToCart(${product.id})"
                                 ${isRecentlyAdded ? 'disabled' : ''}
                                 class="flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${buttonClass}"
                             >
@@ -102,22 +122,50 @@
         });
     }
 
-    window.handleAddToCart = (productId) => {
-        const product = mockProducts.find(p => p.id === productId);
+    window.handleAddToCart = async (productId) => {
+        if (!myEmail) {
+            alert("Please log in to add items to your cart!");
+            return;
+        }
 
-        cartItems.push(product);
-        cartCountDisplay.innerText = cartItems.length;
+        const product = allProducts.find(p => p.id === productId);
 
-        addedFeedbackSet.add(productId);
-        renderProducts();
+        const cartItemData = {
+            clientEmail: myEmail,
+            brand: product.brand,
+            name: product.name,
+            price: product.price,
+            quantity: 1,
+            image: product.imageUrl
+        };
 
-        setTimeout(() => {
-            addedFeedbackSet.delete(productId);
-            renderProducts();
-        }, 2000);
+        try {
+
+            const response = await fetch('/api/cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cartItemData)
+            });
+
+            if (response.ok) {
+
+                addedFeedbackSet.add(productId);
+
+                await loadData();
+
+                setTimeout(() => {
+                    addedFeedbackSet.delete(productId);
+                    renderProducts();
+                }, 2000);
+            } else {
+                alert("Failed to add product to cart.");
+            }
+        } catch (error) {
+            console.error("Cart error:", error);
+        }
     };
 
-    renderProducts();
+    loadData();
 </script>
 </body>
 </html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Product</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-900 min-h-screen">
+
+<div class="max-w-3xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold">Add Recommended Product</h1>
+        <a href="/specialist/specialist_dashboard.html" class="text-pink-600 hover:text-pink-700 font-medium flex items-center gap-2">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <form id="add-product-form" class="bg-white rounded-2xl shadow-md p-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-sm font-medium mb-2 text-gray-700">Brand Name</label>
+                <input type="text" id="brand" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 outline-none" placeholder="e.g. The Ordinary" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2 text-gray-700">Product Name</label>
+                <input type="text" id="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 outline-none" placeholder="e.g. Niacinamide 10%" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2 text-gray-700">Price ($)</label>
+                <input type="number" id="price" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 outline-none" placeholder="0.00" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-2 text-gray-700">Target Skin Concern</label>
+                <select id="targetConcern" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 outline-none" required>
+                    <option value="">Select an option</option>
+                    <option value="acne">Acne & Blemishes</option>
+                    <option value="dryness">Dryness & Hydration</option>
+                    <option value="wrinkles">Anti-Aging & Wrinkles</option>
+                    <option value="dark-spots">Dark Spots</option>
+                    <option value="redness">Redness & Sensitivity</option>
+                    <option value="all">All Skin Types</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-2 text-gray-700">Image URL</label>
+            <input type="url" id="imageUrl" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 outline-none" placeholder="https://example.com/image.jpg" required>
+            <p class="text-xs text-gray-500 mt-1">Paste a link to the product image.</p>
+        </div>
+
+        <div class="mb-8">
+            <label class="block text-sm font-medium mb-2 text-gray-700">Product Description</label>
+            <textarea id="description" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 outline-none" placeholder="Describe what the product does and how to use it..." required></textarea>
+        </div>
+
+        <button type="submit" class="w-full bg-pink-600 text-white py-4 rounded-lg hover:bg-pink-700 transition-colors font-bold text-lg shadow-md">
+            Save Product to Catalog
+        </button>
+    </form>
+</div>
+
+<script>
+    lucide.createIcons();
+
+    document.getElementById('add-product-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const productData = {
+            brand: document.getElementById('brand').value,
+            name: document.getElementById('name').value,
+            price: parseFloat(document.getElementById('price').value),
+            targetConcern: document.getElementById('targetConcern').value,
+            imageUrl: document.getElementById('imageUrl').value,
+            description: document.getElementById('description').value
+        };
+
+        try {
+
+            const response = await fetch('/api/products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(productData)
+            });
+
+            if (response.ok) {
+                alert("Product successfully added to the database!");
+                document.getElementById('add-product-form').reset(); // Clear the form
+            } else {
+                alert("Failed to save product. Check the server logs.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Could not connect to the database.");
+        }
+    });
+</script>
+</body>
+</html>

@@ -16,13 +16,11 @@ public class ConcernController {
     @Autowired
     private ChatMessageRepository chatMessageRepository;
 
-    // This catches the POST request from your client_uploadconcern.html
     @PostMapping
     public Concern submitConcern(@RequestBody Concern concern) {
         return concernRepository.save(concern);
     }
 
-    // This catches the GET request from your specialist_messages.html
     @GetMapping
     public List<Concern> getAllConcerns() {
         return concernRepository.findAll();
