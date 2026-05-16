@@ -58,5 +58,10 @@ public class ConcernController {
         return ResponseEntity.ok(chatMessageRepository.save(message));
     }
 
+    @GetMapping("/specialist/{email}")
+    public ResponseEntity<List<Concern>> getConcernsForSpecialist(@PathVariable String email) {
+        return ResponseEntity.ok(concernRepository.findBySpecialistEmailOrderByIdDesc(email));
+    }
+
 
 }

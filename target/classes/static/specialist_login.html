@@ -95,8 +95,9 @@
             if (response.ok) {
                 const data = await response.json();
 
-
                 if (data.role === 'ROLE_SPECIALIST') {
+
+                    localStorage.setItem('loggedSpecialistEmail', email);
 
                     window.location.href = '/specialist/specialist_dashboard.html';
                 } else {

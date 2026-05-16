@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Specialist Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
 
@@ -78,91 +79,78 @@
     </div>
 </div>
 
+
+
 <script>
+    lucide.createIcons();
 
-    const mockMessages = [
-        {
-            id: '1',
-            clientName: 'Maria Ionescu',
-            subject: 'Severe Acne Flare-up',
-            message: 'I have been experiencing a lot of redness and breakouts around my jawline for the past two weeks...',
-            date: '2024-05-20',
-            replied: false
-        },
-        {
-            id: '2',
-            clientName: 'Andrei Popescu',
-            subject: 'Dry Skin Routine',
-            message: 'Looking for a better moisturizer for the winter season. My current one feels too light.',
-            date: '2024-05-18',
-            replied: true
-        },
-        {
-            id: '3',
-            clientName: 'Elena Radu',
-            subject: 'Hyperpigmentation',
-            message: 'I have some dark spots from old acne scars. What serum would you recommend?',
-            date: '2024-05-15',
-            replied: true
-        },
-        {
-            id: '4',
-            clientName: 'George Matei',
-            subject: 'Sunscreen Sensitivity',
-            message: 'Every sunscreen I try makes my eyes sting. Any mineral recommendations?',
-            date: '2024-05-10',
-            replied: false
-        }
-    ];
-
-    function updateStats() {
-        const total = mockMessages.length;
-        const unreplied = mockMessages.filter(m => !m.replied).length;
-        const replied = total - unreplied;
-
-        document.getElementById('stat-total').innerText = total;
-        document.getElementById('stat-pending').innerText = unreplied;
-        document.getElementById('stat-completed').innerText = replied;
-        document.getElementById('stat-clients').innerText = total; // Exemplu simplificat
-    }
-
-    function renderMessages() {
+    async function loadDashboardData() {
         const container = document.getElementById('messages-list');
+        const myEmail = localStorage.getItem('loggedSpecialistEmail');
 
-        const recent = mockMessages.slice(0, 3);
+        if (!myEmail) {
+            container.innerHTML = `<p class="text-red-500 font-bold p-4">Not logged in.</p>`;
+            return;
+        }
 
-        container.innerHTML = recent.map(msg => `
-            <a href="message-detail.html?id=${msg.id}" class="block p-4 border border-gray-200 rounded-lg hover:border-pink-300 hover:bg-pink-50 transition-all">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        try {
+
+            const response = await fetch(`/api/concerns/specialist/${myEmail}`);
+            if (!response.ok) throw new Error('Failed to fetch data');
+
+            const allConcerns = await response.json();
+
+            const total = allConcerns.length;
+            const replied = allConcerns.filter(c => c.replied).length;
+            const pending = total - replied;
+
+            const uniqueClients = new Set(allConcerns.map(c => c.clientEmail)).size;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-pending').innerText = pending;
+            document.getElementById('stat-completed').innerText = replied;
+            document.getElementById('stat-clients').innerText = uniqueClients;
+
+            if (total === 0) {
+                container.innerHTML = `<p class="text-gray-500 bg-white p-6 rounded-xl shadow-sm text-center">No messages received yet.</p>`;
+                return;
+            }
+
+            const recentConcerns = allConcerns.reverse().slice(0, 3);
+
+            container.innerHTML = recentConcerns.map(msg => `
+                <a href="/specialist/specialist_chat.html?id=${msg.id}" class="block p-4 border border-gray-200 rounded-lg hover:border-pink-300 hover:bg-pink-50 transition-all">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="font-bold">${msg.clientName || 'Client'}</p>
+                                <p class="text-sm text-gray-600">Subject: ${msg.subject}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="font-bold">${msg.clientName}</p>
-                            <p class="text-sm text-gray-600">${msg.subject}</p>
+                        <div class="flex items-center gap-3 mt-2 sm:mt-0">
+                            ${msg.replied
+                                ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">Replied</span>'
+                                : '<span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-medium">Pending</span>'
+                            }
                         </div>
                     </div>
-                    <div class="flex items-center gap-3 mt-2 sm:mt-0">
-                        <span class="text-sm text-gray-500">${msg.date}</span>
-                        ${msg.replied
-                            ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">Replied</span>'
-                            : '<span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-medium">Pending</span>'
-                        }
-                    </div>
-                </div>
-                <p class="text-sm text-gray-600 line-clamp-2">${msg.message}</p>
-            </a>
-        `).join('');
+                    <p class="text-sm text-gray-600 line-clamp-2">${msg.message}</p>
+                </a>
+            `).join('');
+
+        } catch (error) {
+            console.error("Database Error:", error);
+            container.innerHTML = `<p class="text-red-500 font-bold p-4">Database connection error.</p>`;
+        }
     }
-
-   function logout() {
+function logout() {
         localStorage.clear();
         window.location.href = '/index.html';
     }
-
-    updateStats();
-    renderMessages();
+    loadDashboardData();
 </script>
 </body>
 </html>

@@ -59,7 +59,8 @@
     async function loadMessagesFromDB() {
         try {
 
-            const response = await fetch('/api/concerns');
+            const myEmail = localStorage.getItem('loggedSpecialistEmail');
+            const response = await fetch('/api/concerns/specialist/' + myEmail);
 
             if (!response.ok) {
                 throw new Error('Failed to fetch from server');

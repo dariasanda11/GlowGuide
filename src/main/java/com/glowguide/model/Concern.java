@@ -57,4 +57,8 @@ public class Concern {
 
     public List<String> getImages() { return images; }
     public void setImages(List<String> images) { this.images = images; }
+    private String specialistEmail;
+
+    public String getSpecialistEmail() { return specialistEmail; }
+    public void setSpecialistEmail(String specialistEmail) { this.specialistEmail = specialistEmail; }
 }

@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface ConcernRepository extends JpaRepository<Concern, Long> {
     List<Concern> findByClientEmail(String clientEmail);
+    List<Concern> findBySpecialistEmailOrderByIdDesc(String specialistEmail);
 }

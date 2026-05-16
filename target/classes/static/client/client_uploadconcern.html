@@ -18,6 +18,12 @@
     <form id="concern-form" class="bg-white rounded-2xl shadow-lg p-8">
         <div class="mb-6">
             <label class="block text-sm font-medium mb-2">Concern Type</label>
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2 text-gray-700">Choose a Specialist</label>
+                <select id="specialist-select" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 outline-none bg-white" required>
+                    <option value="" disabled selected>Loading specialists...</option>
+                </select>
+            </div>
             <select id="subject" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent outline-none" required>
                 <option value="">Select a concern</option>
                 <option value="acne">Acne</option>
@@ -87,6 +93,7 @@
     const form = document.getElementById('concern-form');
     const uploadView = document.getElementById('upload-view');
     const successView = document.getElementById('success-view');
+    const specialistSelect = document.getElementById('specialist-select');
 
     const getBase64 = (file) => new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -94,6 +101,23 @@
         reader.onload = () => resolve(reader.result);
         reader.onerror = error => reject(error);
     });
+
+    async function loadSpecialists() {
+        try {
+            const response = await fetch('/api/auth/specialists');
+            if (response.ok) {
+                const specialists = await response.json();
+                specialistSelect.innerHTML = '<option value="" disabled selected>Select a specialist</option>';
+                specialists.forEach(spec => {
+                    specialistSelect.innerHTML += `<option value="${spec.email}">${spec.name}</option>`;
+                });
+            } else {
+                specialistSelect.innerHTML = '<option value="" disabled selected>Failed to load specialists</option>';
+            }
+        } catch (error) {
+            specialistSelect.innerHTML = '<option value="" disabled selected>Connection error</option>';
+        }
+    }
 
     fileInput.addEventListener('change', (e) => {
         const files = Array.from(e.target.files);
@@ -119,11 +143,12 @@
     });
 
     form.addEventListener('submit', async (e) => {
-        e.preventDefault(); // Stop page from refreshing
+        e.preventDefault();
 
         const subjectValue = document.getElementById('subject').value;
         const messageValue = document.getElementById('message').value;
-        const realName = localStorage.getItem('loggedClientName') || "Unknown Client";
+        const selectedSpecialistEmail = specialistSelect.value;
+        const realName = localStorage.getItem('loggedClientName') || "Unknown";
         const realEmail = localStorage.getItem('loggedClientEmail') || "unknown@email.com";
 
         const base64Images = await Promise.all(Array.from(fileInput.files).map(getBase64));
@@ -131,6 +156,7 @@
         const concernData = {
             clientName: realName,
             clientEmail: realEmail,
+            specialistEmail: selectedSpecialistEmail,
             subject: subjectValue,
             message: messageValue,
             images: base64Images
@@ -146,7 +172,6 @@
             });
 
             if (response.ok) {
-
                 uploadView.classList.add('hidden');
                 successView.classList.remove('hidden');
 
@@ -154,13 +179,14 @@
                     window.location.href = '/client/client_dashboard.html';
                 }, 2000);
             } else {
-                alert('Oops! The server received the request but something went wrong.');
+                alert('Server error processing request');
             }
         } catch (error) {
-            console.error('Database Connection Error:', error);
-            alert('Failed to connect to the database. Is Spring Boot running?');
+            alert('Database connection failed');
         }
     });
+
+    loadSpecialists();
 </script>
 </body>
 </html>

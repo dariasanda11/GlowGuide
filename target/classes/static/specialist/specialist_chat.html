@@ -34,6 +34,12 @@
 
     <div id="reply-form-container" class="bg-white rounded-xl shadow-md p-6 border-t-4 border-pink-500">
         <h3 class="font-bold mb-4">Write your recommendation</h3>
+        <div class="mb-4">
+            <label class="block text-sm font-bold text-pink-600 mb-2">✨ Recommend a Product (Optional)</label>
+            <select id="product-select" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-pink-500 focus:border-pink-500 bg-white">
+                <option value="">-- No specific product recommendation --</option>
+            </select>
+        </div>
         <textarea id="replyInput" rows="4" class="w-full border border-gray-300 rounded-lg p-3 mb-4 focus:ring-pink-500 focus:border-pink-500" placeholder="Type your advice here..."></textarea>
         <button onclick="sendReply()" class="bg-pink-600 text-white px-6 py-2 rounded-lg hover:bg-pink-700 font-medium">Send Reply</button>
     </div>
@@ -42,6 +48,21 @@
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const concernId = urlParams.get('id');
+
+    async function loadProductsForDropdown() {
+        try {
+            const response = await fetch('/api/products');
+            if (response.ok) {
+                const products = await response.json();
+                const select = document.getElementById('product-select');
+                products.forEach(p => {
+                    select.innerHTML += `<option value="${p.brand} - ${p.name}">[For ${p.targetConcern}] ${p.brand} - ${p.name} ($${p.price.toFixed(2)})</option>`;
+                });
+            }
+        } catch (error) {
+            console.error("Error loading products:", error);
+        }
+    }
 
     async function loadChat() {
         try {
@@ -81,11 +102,19 @@
     }
 
     async function sendReply() {
-        const replyText = document.getElementById('replyInput').value;
+
+        let replyText = document.getElementById('replyInput').value;
+
         if (!replyText) {
             alert("Please type a reply first!");
             return;
         }
+
+        const selectedProduct = document.getElementById('product-select').value;
+        if (selectedProduct) {
+            replyText += `\n\n✨ Recommended Product: ${selectedProduct}. You can find it in your recommended products page to add to your cart!`;
+        }
+
 
         try {
             const response = await fetch(`/api/concerns/${concernId}/reply`, {
@@ -106,6 +135,7 @@
 
     if (concernId) {
         loadChat();
+        loadProductsForDropdown();
     } else {
         alert("No message ID found!");
     }

@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -76,5 +77,20 @@ public class AuthController {
         public void setEmail(String email) { this.email = email; }
         public String getPassword() { return password; }
         public void setPassword(String password) { this.password = password; }
+    }
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @GetMapping("/specialists")
+    public ResponseEntity<List<Map<String, String>>> getSpecialists() {
+        List<Map<String, String>> specialists = userRepository.findByRole("ROLE_SPECIALIST").stream().map(user -> {
+            Map<String, String> map = new HashMap<>();
+            map.put("name", user.getName());
+            map.put("email", user.getEmail());
+            return map;
+        }).toList();
+
+        return ResponseEntity.ok(specialists);
     }
 }
